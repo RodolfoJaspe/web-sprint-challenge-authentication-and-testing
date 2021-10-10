@@ -35,14 +35,34 @@ describe("users model functions", () => {
         })
     })
 })
-describe("register endpoint", () => {
-    it("requires username and password", async () => {
-        const user = await request(server).post(`/api/auth/register`).send(user2)
-        expect(user.body.message).toBe("username and password required")
+describe("test end points", () => {
+    describe("register endpoint", () => {
+        it("requires username and password", async () => {
+            const user = await request(server).post(`/api/auth/register`).send(user2)
+            expect(user.body.message).toBe("username and password required")
+        })
+        it("User can register", async () => {
+            const user = await request(server).post(`/api/auth/register`).send(user1)
+            const validCred = bcrypt.compareSync(user1.password, user.body.password)
+            expect(validCred).toBeTruthy()
+        })
     })
-    it("registers an user", async () => {
-        const user = await request(server).post(`/api/auth/register`).send(user1)
-        const validCred = bcrypt.compareSync(user1.password, user.body.password)
-        expect(validCred).toBeTruthy()
+    describe("login endpoint", () => {
+        it("requires username and password", async () => {
+            const user = await request(server).post(`/api/auth/register`).send(user2)
+            expect(user.body.message).toBe("username and password required")
+        })
+        it("User can login", async () => {
+            await request(server).post('/api/auth/register').send(user1)
+            const user = await request(server).post(`/api/auth/login`).send(user1)
+            expect(user.body.message).toBe(`Welcome, ${user1.username}`)
+        })
+        it("valid token is recieved on login", async () => {
+            await request(server).post('/api/auth/register').send(user1)
+            const user = await request(server).post(`/api/auth/login`).send(user1)
+            expect(user.body.token).toBeTruthy()
+        })
     })
 })
+
+
