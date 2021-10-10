@@ -2,7 +2,7 @@ const router = require('express').Router();
 const User = require("../users/model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const JWT_SECRET = process.env.JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || "shh"
 const { checkUsernameFree } = require('../middleware/checkUsernameFree');
 const checkPayload = require('../middleware/checkPayload');
 
