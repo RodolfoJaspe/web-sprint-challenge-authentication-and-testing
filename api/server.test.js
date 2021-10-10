@@ -7,7 +7,6 @@ const bcrypt = require("bcryptjs")
 
 let user1 = {username: "bruno", password:"1234"}
 let user2 = {username: "", password:"1234"}
-let user3 = {username: "paul", password:"1234"}
 
 test('sanity', () => {
   expect(true).toBe(true)
@@ -61,6 +60,18 @@ describe("test end points", () => {
             await request(server).post('/api/auth/register').send(user1)
             const user = await request(server).post(`/api/auth/login`).send(user1)
             expect(user.body.token).toBeTruthy()
+        })
+    })
+    describe("jokes endpoint", () => {
+        it("requires authorization header", async () => {
+            const result = await request(server).post('/api/jokes')
+            expect(result.status).toBe(401)
+        })
+        it("Can access jokes with authorization header", async () => {
+            await request(server).post('/api/auth/register').send(user1)
+            const user = await request(server).post(`/api/auth/login`).send(user1)
+            const result = await request(server).get('/api/jokes').set("Authorization", user.body.token)
+            expect(result.status).toBe(200)
         })
     })
 })
