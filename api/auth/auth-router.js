@@ -20,7 +20,7 @@ function buildToken(user){
     return jwt.sign(payload,JWT_SECRET,options)
 }
 
-router.post('/register', checkPayload, checkUsernameFree, async (req, res, next) => {
+router.post('/register', checkPayload, checkUsernameFree,  (req, res, next) => {
     let user = req.body
     const hash = bcrypt.hashSync(user.password,8)
     user.password = hash
@@ -30,7 +30,7 @@ router.post('/register', checkPayload, checkUsernameFree, async (req, res, next)
             res.status(201).json(user)
         })
         .catch(next)
-//   res.end('implement register, please!');
+
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -58,8 +58,23 @@ router.post('/register', checkPayload, checkUsernameFree, async (req, res, next)
   */
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+router.post('/login', checkPayload, (req, res, next) => {
+
+    let {username, password} = req.body;
+
+    User.findBy({username})
+        .then(([user]) => {
+            if(user && bcrypt.compareSync(password, user.password)){
+                const token = buildToken(user)
+                res.status(200).json({
+                    message: `Welcome, ${user.username}`,
+                    token
+                })
+            } else {
+                res.status(401).json({message: "invalid credentials"})
+            }
+        })
+        .catch(next)
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
